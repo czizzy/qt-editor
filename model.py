@@ -11,6 +11,8 @@ class Model:
     funcs = None
     def __init__(self, id):
         self.id = id
+        self.children = []
+        self.parent = None
         self.type = ""
         self.name = ""
         self.position = QVector3D(0, 0, 0)
@@ -68,6 +70,8 @@ class Model:
     def destroy(self):
         self.vbo.destroy()
         self.vao.destroy()
+        for i, child in enumerate(self.children):
+            child.destroy()
 
     def value(self):
         return {}
@@ -189,6 +193,9 @@ class Cube(Model):
         self.setLength(length)
 
     def value(self):
+        children = []
+        for i, child in enumerate(self.children):
+          children.append(child.value())
         return { 
           "type": "cube",
           "name": self.name,
@@ -197,7 +204,8 @@ class Cube(Model):
           "color": [self.color.x(), self.color.y(), self.color.z(), self.color.w()],
           "width": self.width,
           "height": self.height,
-          "length": self.length
+          "length": self.length,
+          "children": children
         }
         
     def setWidth(self, width):
@@ -247,13 +255,17 @@ class Sphere(Model):
         self.setRadius(radius)
         
     def value(self):
+        children = []
+        for i, child in enumerate(self.children):
+          children.append(child.value())
         return { 
           "type": "sphere",
           "name": self.name,
           "position": [self.position.x(), self.position.y(), self.position.z()],
           "rotation": [self.quaternion.x(), self.quaternion.y(), self.quaternion.z(), self.quaternion.scalar()],
           "color": [self.color.x(), self.color.y(), self.color.z(), self.color.w()],
-          "radius": self.radius
+          "radius": self.radius,
+          "children": children
         }
     
     def setRadius(self, radius):

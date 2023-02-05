@@ -254,14 +254,25 @@ class SceneWindow(QOpenGLWidget):
 
         program.setUniformValue('uLightDirection', lightDirection)
         for i, model in enumerate(self.store.models):
-            if isDrawHighlight and model.id != self.store.currentSelection: 
-                continue
-            program.setUniformValue("model",
-                                            model.modelMatrix)
-            program.setUniformValue("uColor",
-                                            model.color)
-            model.initialize(funcs)
-            model.bind()
-            model.draw(funcs)
-            model.release()
+            matrix = QMatrix4x4()
+            matrix.setToIdentity()
+            self.recursiveDraw(model, matrix, program, isDrawHighlight)
         program.release()
+
+    def recursiveDraw(self, model, parentMatrix: QMatrix4x4, program, isDrawHighlight):
+        funcs = self.context.functions()
+        currentMatrix = parentMatrix.__mul__(model.modelMatrix)
+        program.setUniformValue("model",
+                                           currentMatrix)
+        program.setUniformValue("uColor",
+                                            model.color)
+        model.initialize(funcs)
+        model.bind()
+        if isDrawHighlight == False:
+            model.draw(funcs)
+        elif isDrawHighlight and model.id == self.store.currentSelection: 
+            model.draw(funcs)
+        model.release()
+
+        for i, child in enumerate(model.children):
+            self.recursiveDraw(child, currentMatrix, program, isDrawHighlight)

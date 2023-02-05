@@ -22,40 +22,65 @@ class Store(QObject):
         qsettings = QSettings()
         data = json.loads(qsettings.value("data"))
         for i, item in enumerate(data):
-            if item["type"] == "cube":
-                model = self.addCube()
-                model.setName(item["name"])
-                model.setColor(item["color"][0], item["color"][1], item["color"][2], item["color"][3])
-                model.setPosition(item["position"][0], item["position"][1], item["position"][2])
-                model.setQuaternion(item["rotation"][0], item["rotation"][1], item["rotation"][2], item["rotation"][3])
-                model.setWidth(item["width"])
-                model.setHeight(item["height"])
-                model.setLength(item["length"])
-
-            if item["type"] == "sphere":
-                model = self.addSphere()
-                model.setName(item["name"])
-                model.setColor(item["color"][0], item["color"][1], item["color"][2], item["color"][3])
-                model.setPosition(item["position"][0], item["position"][1], item["position"][2])
-                model.setQuaternion(item["rotation"][0], item["rotation"][1], item["rotation"][2], item["rotation"][3])
-                model.setRadius(item["radius"])
+            self.recursiveAdd(None, item)
             
-            self.emitChange()
+        self.emitChange()
 
+    def recursiveAdd(self, parent, item):
+        if item["type"] == "cube":
+            model = self.addCube(parent)
+            model.setName(item["name"])
+            model.setColor(item["color"][0], item["color"][1], item["color"][2], item["color"][3])
+            model.setPosition(item["position"][0], item["position"][1], item["position"][2])
+            model.setQuaternion(item["rotation"][0], item["rotation"][1], item["rotation"][2], item["rotation"][3])
+            model.setWidth(item["width"])
+            model.setHeight(item["height"])
+            model.setLength(item["length"])
 
-    def addCube(self):
+        if item["type"] == "sphere":
+            model = self.addSphere(parent)
+            model.setName(item["name"])
+            model.setColor(item["color"][0], item["color"][1], item["color"][2], item["color"][3])
+            model.setPosition(item["position"][0], item["position"][1], item["position"][2])
+            model.setQuaternion(item["rotation"][0], item["rotation"][1], item["rotation"][2], item["rotation"][3])
+            model.setRadius(item["radius"])
+
+        for i, child in enumerate(item["children"]):
+            self.recursiveAdd(model, child)
+
+    def addCube(self, specParent = None):
+        parent = None
+        if self.currentSelection != None:
+          parent = self.getModelById(self.currentSelection)
         self.id += 1
         model = Cube(self.id)
-        self.models.append(model)
+        if parent != None:
+          parent.children.append(model)
+          model.parent = parent
+        elif specParent != None:
+          specParent.children.append(model)
+          model.parent = specParent
+        else:
+          self.models.append(model)
         self.modelDict[self.id] = model
         self.emitChange()
         return model
 
 
-    def addSphere(self):
+    def addSphere(self, specParent = None):
+        parent = None
+        if self.currentSelection != None:
+          parent = self.getModelById(self.currentSelection)
         self.id += 1
         model = Sphere(self.id)
-        self.models.append(model)
+        if parent != None:
+          parent.children.append(model)
+          model.parent = parent
+        elif specParent != None:
+          specParent.children.append(model)
+          model.parent = specParent
+        else:
+          self.models.append(model)
         self.modelDict[self.id] = model
         self.emitChange()
         return model
@@ -63,7 +88,10 @@ class Store(QObject):
     def remove(self):
         if self.currentSelection != None:
             item = self.getModelById(self.currentSelection)
-            self.models.remove(item)
+            if (item.parent == None):
+                self.models.remove(item)
+            else:
+                item.parent.children.remove(item)
             del self.modelDict[self.currentSelection]
             self.currentSelection = None
             self.emitChange()
