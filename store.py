@@ -20,11 +20,14 @@ class Store(QObject):
     def __init__(self):
         super(Store, self).__init__()
         qsettings = QSettings()
-        data = json.loads(qsettings.value("data"))
-        for i, item in enumerate(data):
-            self.recursiveAdd(None, item)
+        jsonString = qsettings.value("data")
+        if jsonString != None:
+          data = json.loads(qsettings.value("data"))
+
+          for i, item in enumerate(data):
+              self.recursiveAdd(None, item)
             
-        self.emitChange()
+          self.emitChange()
 
     def recursiveAdd(self, parent, item):
         if item["type"] == "cube":
