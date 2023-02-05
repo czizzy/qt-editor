@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QColorDialog, QLineEdit, QDoubleSpinBox, QSizePolicy, QPushButton
-from PySide6.QtGui import QPalette, QColor
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import Qt
 
 
 class InspectorWindow(QWidget):
@@ -27,19 +26,23 @@ class InspectorWindow(QWidget):
     def render(self):
         if self.store.currentSelection != None:
             if self.form != None:
+                print(self.form)
+                while self.formLayout.count():
+                    item = self.formLayout.takeAt(0)
+                    item.widget().deleteLater()
                 self.form.destroy()
             self.model = self.store.getModelById(self.store.currentSelection)
 
             self.layout.removeWidget(self.form)
             self.form = QWidget()
-            formLayout = QVBoxLayout()
-            self.form.setLayout(formLayout)
+            self.formLayout = QVBoxLayout()
+            self.form.setLayout(self.formLayout)
             self.nameInput = QLineEdit()
             self.nameInput.setPlaceholderText("Enter the name")
             self.nameInput.editingFinished.connect(self.nameEdited)
             self.nameInput.setText(self.model.name)
-            formLayout.addWidget(QLabel("name:"))
-            formLayout.addWidget(self.nameInput)
+            self.formLayout.addWidget(QLabel("name:"))
+            self.formLayout.addWidget(self.nameInput)
 
             positionXInput = QDoubleSpinBox()
             positionXInput.valueChanged.connect(self.positionXchanged)
@@ -64,8 +67,8 @@ class InspectorWindow(QWidget):
             positionsLayout.addWidget(positionYInput)
             positionsLayout.addWidget(positionZInput)
 
-            formLayout.addWidget(QLabel("position:"), 0, Qt.AlignTop)
-            formLayout.addWidget(positions, 0, Qt.AlignTop)
+            self.formLayout.addWidget(QLabel("position:"), 0, Qt.AlignTop)
+            self.formLayout.addWidget(positions, 0, Qt.AlignTop)
 
 
             rotationXInput = QDoubleSpinBox()
@@ -97,13 +100,13 @@ class InspectorWindow(QWidget):
             rotationsLayout.addWidget(rotationZInput)
             rotationsLayout.addWidget(rotationWInput)
 
-            formLayout.addWidget(QLabel("rotation:"))
-            formLayout.addWidget(rotations)
-            formLayout.setAlignment(Qt.AlignTop)
+            self.formLayout.addWidget(QLabel("rotation:"))
+            self.formLayout.addWidget(rotations)
+            self.formLayout.setAlignment(Qt.AlignTop)
 
             colorButton = QPushButton("Select color")
             colorButton.clicked.connect(self.colorClicked)
-            formLayout.addWidget(colorButton)
+            self.formLayout.addWidget(colorButton)
 
 
             if self.model.type == "cube":
@@ -129,8 +132,8 @@ class InspectorWindow(QWidget):
                 sizesLayout.addWidget(sizeXInput)
                 sizesLayout.addWidget(sizeYInput)
                 sizesLayout.addWidget(sizeZInput)
-                formLayout.addWidget(QLabel("size:"))
-                formLayout.addWidget(sizes)
+                self.formLayout.addWidget(QLabel("size:"))
+                self.formLayout.addWidget(sizes)
 
             else:
                 radiusInput = QDoubleSpinBox()
@@ -139,8 +142,8 @@ class InspectorWindow(QWidget):
                 radiusInput.setRange(0, 10)
                 radiusInput.setValue(self.model.radius)
 
-                formLayout.addWidget(QLabel("radius:"))
-                formLayout.addWidget(radiusInput)
+                self.formLayout.addWidget(QLabel("radius:"))
+                self.formLayout.addWidget(radiusInput)
 
             self.layout.addWidget(self.form)
 

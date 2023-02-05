@@ -1,14 +1,7 @@
-# Author: Kaan Eraslan
-
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Qt
-from PySide6.QtOpenGLWidgets import QOpenGLWidget
-from PySide6.QtGui import QWheelEvent
-from PySide6 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore
 
-from PySide6.QtOpenGLWidgets import QOpenGLWidget
-from SceneWindow import SceneWindow
-import sys
+from ui.SceneWindow import SceneWindow
 
 
 class EventAppWindow(QWidget):

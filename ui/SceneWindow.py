@@ -1,26 +1,17 @@
 # Author: Kaan Eraslan
 # purpose interactive widget
 
-import numpy as np
 import os
 import sys
-from model import (Cube, Sphere)
-from store import Store
 from utils.camera import QtCamera
 
-from PySide6.QtGui import QVector3D
 from PySide6.QtOpenGL import (QOpenGLShader, QOpenGLShaderProgram)
-from PySide6.QtGui import QOpenGLContext
-from PySide6.QtGui import QMatrix4x4
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QOpenGLContext, QMatrix4x4, QVector3D
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 
 from PySide6.QtCore import QCoreApplication
-
-from PySide6.support import VoidPtr
 
 
 try:
@@ -52,7 +43,9 @@ class SceneWindow(QOpenGLWidget):
 
         # shaders etc
         currentDir = os.path.dirname(__file__)
-        shaderDir = os.path.join(currentDir, "shaders")
+        parentDir = os.path.join(currentDir, os.pardir)
+
+        shaderDir = os.path.join(parentDir, "shaders")
 
         availableShaders = ["cube"]
         self.shaders = {

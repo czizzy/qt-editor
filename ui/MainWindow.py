@@ -1,19 +1,10 @@
-from PySide6.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QVBoxLayout, QSizePolicy, QToolBar
 from PySide6.QtCore import QSize
-from HierarchyWindow import HierarchyWindow
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QMenuBar,
-    QSizePolicy, QStatusBar, QWidget)
-from EventAppWindow import EventAppWindow
-from PySide6.QtCore import QSettings
+from ui.EventAppWindow import EventAppWindow
+from ui.HierarchyWindow import HierarchyWindow
+from ui.InspectorWindow import InspectorWindow
 
-
-from PySide6.QtWidgets import (
-    QMainWindow, QApplication,
-    QLabel, QToolBar, QStatusBar
-)
-from PySide6.QtGui import QAction, QIcon
-from PySide6.QtCore import Qt
-from InspectorWindow import InspectorWindow
+from PySide6.QtGui import QAction
 
 from store import Store
 
