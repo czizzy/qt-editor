@@ -28,8 +28,6 @@ except ImportError:
 
 
 class SceneWindow(QOpenGLWidget):
-    "Cube gl widget"
-
     def __init__(self, store):
         QOpenGLWidget.__init__(self)
         self.store = store
@@ -47,7 +45,7 @@ class SceneWindow(QOpenGLWidget):
 
         shaderDir = os.path.join(parentDir, "shaders")
 
-        availableShaders = ["cube"]
+        availableShaders = ["render", "highlight"]
         self.shaders = {
             name: {
                 "fragment": os.path.join(shaderDir, name + ".frag"),
@@ -180,12 +178,29 @@ class SceneWindow(QOpenGLWidget):
         # create uniform values for shaders
         # deal with shaders
 
-        # cube shader
+        # shader
+        self.highlightProgram = QOpenGLShaderProgram(
+            self.context
+        )
+        vshader1 = self.loadVertexShader("highlight")
+        fshader1 = self.loadFragmentShader("highlight")
+        self.highlightProgram.addShader(vshader1)  # adding vertex shader
+        self.highlightProgram.addShader(fshader1)  # adding fragment shader
+        self.highlightProgram.bindAttributeLocation(
+            "aPos", 0)
+        self.highlightProgram.bindAttributeLocation(
+            "aNormal", 1)
+
+        isLinked = self.highlightProgram.link()
+        print("shader program is linked: ",
+              isLinked)
+        self.highlightProgram.bind()
+
         self.program = QOpenGLShaderProgram(
             self.context
         )
-        vshader = self.loadVertexShader("cube")
-        fshader = self.loadFragmentShader("cube")
+        vshader = self.loadVertexShader("render")
+        fshader = self.loadFragmentShader("render")
         self.program.addShader(vshader)  # adding vertex shader
         self.program.addShader(fshader)  # adding fragment shader
         self.program.bindAttributeLocation(
@@ -194,17 +209,10 @@ class SceneWindow(QOpenGLWidget):
             "aNormal", 1)
 
         isLinked = self.program.link()
-        print("cube shader program is linked: ",
+        print("shader program is linked: ",
               isLinked)
         # bind the program
         self.program.bind()
-
-        #
-        # deal with vaos and vbo
-        # vbo
-        # for i, model in enumerate(self.models):
-        #     model.initialize(funcs)
-        #     model.release()
 
         print("gl initialized")
 
@@ -216,8 +224,17 @@ class SceneWindow(QOpenGLWidget):
         funcs.glClear(
             pygl.GL_COLOR_BUFFER_BIT | pygl.GL_DEPTH_BUFFER_BIT
         )
+        funcs.glFrontFace(pygl.GL_CW)
+        # funcs.glDisable(pygl.GL_DEPTH_TEST)
+        # funcs.glDisable(pygl.GL_CULL_FACE)
+        self.draw(self.highlightProgram, funcs, True)
+        funcs.glFrontFace(pygl.GL_CCW)
+
+        self.draw(self.program, funcs, False)
+
+    def draw(self, program, funcs, isDrawHighlight):
         # actual drawing
-        self.program.bind()
+        program.bind()
         # set projection matrix
         projectionMatrix = QMatrix4x4()
         projectionMatrix.perspective(
@@ -225,24 +242,26 @@ class SceneWindow(QOpenGLWidget):
             self.width() / self.height(),
             0.2, 100.0)
 
-        self.program.setUniformValue('projection',
+        program.setUniformValue('projection',
                                      projectionMatrix)
 
         # set view/camera matrix
         viewMatrix = self.camera.getViewMatrix()
-        self.program.setUniformValue('view', viewMatrix)
+        program.setUniformValue('view', viewMatrix)
 
         lightDirection = QVector3D(0.1, -0.1, -1.0)
         lightDirection.normalize()
 
-        self.program.setUniformValue('uLightDirection', lightDirection)
+        program.setUniformValue('uLightDirection', lightDirection)
         for i, model in enumerate(self.store.models):
-            self.program.setUniformValue("model",
-                                         model.modelMatrix)
-            self.program.setUniformValue("uColor",
-                                         model.color)
+            if isDrawHighlight and model.id != self.store.currentSelection: 
+                continue
+            program.setUniformValue("model",
+                                            model.modelMatrix)
+            program.setUniformValue("uColor",
+                                            model.color)
             model.initialize(funcs)
             model.bind()
             model.draw(funcs)
             model.release()
-        self.program.release()
+        program.release()
