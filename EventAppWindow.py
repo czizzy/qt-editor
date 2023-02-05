@@ -47,28 +47,6 @@ class EventAppWindow(QWidget):
     def moveCameraDown(self):
         self.moveGLCamera("down")
 
-    def turnCameraX(self, newVal: int):
-        "Turn camera around"
-        offsetx = newVal - self.lastCamXVal
-        valy = self.camY.value() - self.lastCamYVal
-        self.glWidget.turnAround(x=float(offsetx),
-                                 y=float(valy))
-        self.lastCamXVal = newVal
-
-    def turnCameraY(self, newVal: int):
-        "Turn camera around"
-        offsety = newVal - self.lastCamYVal
-        valx = self.camX.value() - self.lastCamXVal
-        self.glWidget.turnAround(x=float(valx),
-                                 y=float(offsety))
-        self.lastCamYVal = newVal
-
-    def rotateCubes(self):
-        rx = self.xSlider.value()
-        ry = self.ySlider.value()
-        rz = self.zSlider.value()
-        self.glWidget.rotateCubes(rx, ry, rz)
-
 
     def mousePressEvent(self, event):
         self.mousePosition = event.pos()

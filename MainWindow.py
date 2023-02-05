@@ -4,6 +4,8 @@ from HierarchyWindow import HierarchyWindow
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QMainWindow, QMenuBar,
     QSizePolicy, QStatusBar, QWidget)
 from EventAppWindow import EventAppWindow
+from PySide6.QtCore import QSettings
+
 
 from PySide6.QtWidgets import (
     QMainWindow, QApplication,
@@ -18,9 +20,8 @@ from store import Store
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-
         self.setWindowTitle("QT Editor")
-        self.setMinimumSize(QSize(800, 600))
+        self.setMinimumSize(QSize(1000, 800))
 
         toolbar = QToolBar("My main toolbar")
         self.addToolBar(toolbar)

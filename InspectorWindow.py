@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QListWidgetItem, QLineEdit, QDoubleSpinBox, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QColorDialog, QLineEdit, QDoubleSpinBox, QSizePolicy, QPushButton
 from PySide6.QtGui import QPalette, QColor
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 
 
 class InspectorWindow(QWidget):
@@ -64,8 +64,8 @@ class InspectorWindow(QWidget):
             positionsLayout.addWidget(positionYInput)
             positionsLayout.addWidget(positionZInput)
 
-            formLayout.addWidget(QLabel("position:"))
-            formLayout.addWidget(positions)
+            formLayout.addWidget(QLabel("position:"), 0, Qt.AlignTop)
+            formLayout.addWidget(positions, 0, Qt.AlignTop)
 
 
             rotationXInput = QDoubleSpinBox()
@@ -99,14 +99,77 @@ class InspectorWindow(QWidget):
 
             formLayout.addWidget(QLabel("rotation:"))
             formLayout.addWidget(rotations)
+            formLayout.setAlignment(Qt.AlignTop)
+
+            colorButton = QPushButton("Select color")
+            colorButton.clicked.connect(self.colorClicked)
+            formLayout.addWidget(colorButton)
+
+
+            if self.model.type == "cube":
+                sizeXInput = QDoubleSpinBox()
+                sizeXInput.valueChanged.connect(self.widthChanged)
+                sizeXInput.setSingleStep(0.1)
+                sizeXInput.setRange(0, 10)
+                sizeXInput.setValue(self.model.width)
+                sizeYInput = QDoubleSpinBox()
+                sizeYInput.valueChanged.connect(self.heightChanged)
+                sizeYInput.setSingleStep(0.1)
+                sizeYInput.setRange(0, 10)
+                sizeYInput.setValue(self.model.height)
+                sizeZInput = QDoubleSpinBox()
+                sizeZInput.valueChanged.connect(self.lengthChanged)
+                sizeZInput.setSingleStep(0.1)
+                sizeZInput.setRange(0, 10)
+                sizeZInput.setValue(self.model.length)
+
+                sizes = QWidget()
+                sizesLayout = QHBoxLayout()
+                sizes.setLayout(sizesLayout)
+                sizesLayout.addWidget(sizeXInput)
+                sizesLayout.addWidget(sizeYInput)
+                sizesLayout.addWidget(sizeZInput)
+                formLayout.addWidget(QLabel("size:"))
+                formLayout.addWidget(sizes)
+
+            else:
+                radiusInput = QDoubleSpinBox()
+                radiusInput.valueChanged.connect(self.radiusChanged)
+                radiusInput.setSingleStep(0.1)
+                radiusInput.setRange(0, 10)
+                radiusInput.setValue(self.model.radius)
+
+                formLayout.addWidget(QLabel("radius:"))
+                formLayout.addWidget(radiusInput)
 
             self.layout.addWidget(self.form)
 
+    def colorClicked(self):
+        color = QColorDialog.getColor().getRgbF()
+        self.model.setColor(color[0], color[1], color[2], color[3])
+        self.store.emitChange()
 
 
     def nameEdited(self):
         self.model.setName(self.nameInput.text())
         self.store.emitChange()
+
+    def widthChanged(self, value):
+        self.model.setWidth(value)
+        self.store.emitChange()
+
+    def heightChanged(self, value):
+        self.model.setHeight(value)
+        self.store.emitChange()
+
+    def lengthChanged(self, value):
+        self.model.setLength(value)
+        self.store.emitChange()
+
+    def radiusChanged(self, value):
+        self.model.setRadius(value)
+        self.store.emitChange()
+
 
     def positionXchanged(self, value):
         self.model.setPositionX(value)

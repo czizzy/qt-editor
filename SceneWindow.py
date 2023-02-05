@@ -67,7 +67,6 @@ class SceneWindow(QOpenGLWidget):
         self.context = QOpenGLContext()
         self.program = QOpenGLShaderProgram()
        
-        self.rotateVector = QVector3D(0.7, 0.2, 0.5)
 
     def loadShader(self,
                    shaderName: str,
@@ -94,7 +93,7 @@ class SceneWindow(QOpenGLWidget):
     def useShaders(
         self,
         shaderProgram: QOpenGLShaderProgram,
-        shaders: {"shaderName": ["shaderType"]},
+        shaders,
         attrLocs: dict
     ):
         ""
@@ -152,20 +151,6 @@ class SceneWindow(QOpenGLWidget):
         self.camera.move(direction, deltaTime=0.05)
         self.update()
 
-    def turnAround(self, x: float, y: float):
-        ""
-        self.camera.lookAround(xoffset=x,
-                               yoffset=y,
-                               pitchBound=True)
-        self.update()
-
-    def rotateCubes(self, xval: float,
-                    yval: float, zval: float):
-        ""
-        self.rotateVector.setZ(zval)
-        self.rotateVector.setY(yval)
-        self.rotateVector.setX(xval)
-        self.update()
 
     def cleanUpGl(self):
         "Clean up everything"
@@ -261,6 +246,8 @@ class SceneWindow(QOpenGLWidget):
         for i, model in enumerate(self.store.models):
             self.program.setUniformValue("model",
                                          model.modelMatrix)
+            self.program.setUniformValue("uColor",
+                                         model.color)
             model.initialize(funcs)
             model.bind()
             model.draw(funcs)
